@@ -23,23 +23,35 @@ const criaNovaLinha = (nome, email, id) => {
 // percorre a árvore do DOM através do data-atribute definido no HTML
 const tabela = document.querySelector('[data-tabela]')
 
-tabela.addEventListener('click', (evento) => {
+tabela.addEventListener('click', async (evento)=> {
     let ehBotaoDeDeleta = evento.target.className === 'botao-simples botao-simples--excluir'
-    if (ehBotaoDeDeleta) {
-        const linhaCliente = evento.target.closest('[data-id]')
-        let id = linhaCliente.dataset.id
-        clienteService.removeCliente(id)
-            .then(() => {
-                linhaCliente.remove()
-            })
-
+    if(ehBotaoDeDeleta){
+        try {
+            const linhaCliente = evento.target.closest('[data-id]')
+            let id = linhaCliente.dataset.id
+            await clienteService.removeCliente(id)
+            /*.then(() => {*/
+            linhaCliente.remove()
+        }
+        catch(erro){
+            console.log(erro)
+            window.location.href="../telas/erro.html"
+        }
     }
 })
 
-
-clienteService.listaClientes()
-    .then(data => {
-        data.forEach(elemento => {
-            tabela.appendChild(criaNovaLinha(elemento.nome, elemento.email, elemento.id))
-        })
+const render = async () =>  {
+    try {
+        const listaClientes = await clienteService.listaClientes()
+        listaClientes.forEach(elemento => {
+            tabela.appendChild(criaNovaLinha(elemento.nome,elemento.email, elemento.id))
     })
+    }
+    catch(erro){
+        console.log(erro)
+        window.location.href="../telas/erro.html"
+    }
+    
+}
+
+render()
